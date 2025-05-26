@@ -243,6 +243,7 @@ Use Cursor Composer in agent mode with command execution (not sure what this mea
 - `vibe-tools ask` allows direct querying of any model from any provider. It's best for simple questions where you want to use a specific model or compare responses from different models.
 - `vibe-tools web` uses an AI teammate with web search capability to answer questions. `web` is best for finding up-to-date information from the web that is not specific to the repository such as how to use a library to search for known issues and error messages or to get suggestions on how to do something. Web is a teammate who knows tons of stuff and is always up to date.
 - `vibe-tools repo` uses an AI teammate with large context window capability to answer questions. `repo` sends the entire repo as context so it is ideal for questions about how things work or where to find something, it is also great for code review, debugging and planning. is a teammate who knows the entire codebase inside out and understands how everything works together.
+- `vibe-tools review-diff` uses an AI teammate with code review capability to analyze changes. `review-diff` sends both the entire repo context AND a git diff against a base branch (default: main) to provide comprehensive code reviews. It's ideal for reviewing pull requests, understanding what changed, and getting feedback on your modifications. Review-diff is a teammate who can see both the big picture and the specific changes you've made.
 - `vibe-tools plan` uses an AI teammate with reasoning capability to plan complex tasks. Plan uses a two step process. First it does a whole repo search with a large context window model to find relevant files. Then it sends only those files as context to a thinking model to generate a plan it is great for planning complex tasks and for debugging and refactoring. Plan is a teammate who is really smart on a well defined problem, although doesn't consider the bigger picture.
 - `vibe-tools doc` uses an AI teammate with large context window capability to generate documentation for local or github hosted repositories by sending the entire repo as context. `doc` can be given precise documentation tasks or can be asked to generate complete docs from scratch it is great for generating docs updates or for generating local documentation for a libary or API that you use! Doc is a teammate who is great at summarising and explaining code, in this repo or in any other repo!
 - `vibe-tools browser` uses an AI teammate with browser control (aka operator) capability to operate web browsers. `browser` can operate in a hidden (headless) mode to invisibly test and debug web apps or it can be used to connect to an existing browser session to interactively share your browser with Cursor agent it is great for testing and debugging web apps and for carrying out any task that can be done in a browser such as reading information from a bug ticket or even filling out a form. Browser is a teammate who can help you test and debug web apps, and can share control of your browser to perform small browser-based tasks.
@@ -273,6 +274,16 @@ Note: in most cases you can say "ask Perplexity" instead of "use vibe-tools web"
 "Use vibe-tools repo to explain this React component with documentation from the official React docs. Use --with-doc=https://react.dev/reference/react/useState"
 
 Note: in most cases you can say "ask Gemini" instead of "use vibe-tools repo" and it will work the same.
+
+### Use review-diff for code reviews
+
+"Use vibe-tools review-diff to review my changes and suggest improvements"
+
+"Use vibe-tools review-diff to check if my authentication changes have any security issues. Use --base=develop if comparing against develop branch"
+
+"Use vibe-tools review-diff 'Are there any breaking changes in this PR?' --base=release-v2"
+
+Note: review-diff combines the full repository context with a git diff, making it ideal for comprehensive code reviews.
 
 ### Use doc generation
 
@@ -1114,6 +1125,25 @@ vibe-tools repo "Analyze the security implications of our authentication impleme
 
 # Include web documentation as context
 vibe-tools repo "Help me implement useState in my component" --with-doc=https://react.dev/reference/react/useState
+```
+
+#### Code Review Examples
+
+```bash
+# Review current changes
+vibe-tools review-diff "Review my changes and suggest improvements"
+
+# Security-focused review
+vibe-tools review-diff "Are there any security issues in these changes?"
+
+# Review against specific branch
+vibe-tools review-diff "What breaking changes exist?" --base=release-v2
+
+# Review with specific focus
+vibe-tools review-diff "Review the error handling in my changes" --base=develop
+
+# Save review to file
+vibe-tools review-diff "Provide a detailed code review" --save-to=code-review.md
 ```
 
 #### Direct Model Query Examples

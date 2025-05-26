@@ -51,6 +51,9 @@ export interface CommandOptions {
 
   // Telemetry tracking
   trackTelemetry?: (data: Record<string, any>) => void; // Function to update telemetry data
+
+  // Review-diff options
+  base?: string; // Base branch for diff comparison
 }
 
 export interface Command {

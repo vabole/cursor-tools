@@ -61,7 +61,9 @@ type CLIStringOption =
   | 'type'
   | 'format'
   // Test options
-  | 'scenarios';
+  | 'scenarios'
+  // Review-diff options
+  | 'base';
 
 type CLINumberOption =
   // Core options
@@ -136,6 +138,9 @@ interface CLIOptions {
   // Test options
   parallel?: number;
   scenarios?: string;
+
+  // Review-diff options
+  base?: string;
 }
 
 type CLIOptionKey = CLIStringOption | CLINumberOption | CLIBooleanOption;
@@ -191,6 +196,9 @@ const OPTION_KEYS: Record<string, CLIOptionKey> = {
   // Test options
   parallel: 'parallel',
   scenarios: 'scenarios',
+
+  // Review-diff options
+  base: 'base',
 };
 
 // Set of option keys that are boolean flags
@@ -327,6 +335,8 @@ async function main() {
     timeout: undefined,
     connectTo: undefined,
     parallel: undefined,
+    // Review-diff options
+    base: undefined,
     // Boolean options
     console: undefined,
     html: undefined,

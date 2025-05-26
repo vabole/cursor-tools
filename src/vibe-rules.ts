@@ -48,6 +48,9 @@ when using web for complex queries suggest writing the output to a file somewher
 \`vibe-tools repo "<your question>" [--subdir=<path>] [--from-github=<username/repo>] [--with-doc=<doc_url>...]\` - Get context-aware answers about this repository using Google Gemini (e.g., \`vibe-tools repo "explain authentication flow"\`)
 Use the optional \`--subdir\` parameter to analyze a specific subdirectory instead of the entire repository (e.g., \`vibe-tools repo "explain the code structure" --subdir=src/components\`). Use the optional \`--from-github\` parameter to analyze a remote GitHub repository without cloning it locally (e.g., \`vibe-tools repo "explain the authentication system" --from-github=username/repo-name\`). Use the optional \`--with-doc\` parameter multiple times to include content from several URLs as additional context (e.g., \`vibe-tools repo "summarize findings" --with-doc=https://example.com/spec1 --with-doc=https://example.com/spec2\`).
 
+**Code Review with Diff:**
+\`vibe-tools review-diff "<your review question>" [--base=<branch>] [--subdir=<path>] [--with-doc=<doc_url>]\` - Review code changes by providing both repository context and git diff against a base branch (e.g., \`vibe-tools review-diff "Review my authentication changes for security issues"\`). Use the optional \`--base\` parameter to specify a different base branch (default: main) (e.g., \`vibe-tools review-diff "What are the breaking changes?" --base=release-v2\`). Supports the same options as repo command for subdirectory analysis and document context.
+
 **Documentation Generation:**
 \`vibe-tools doc [options] [--with-doc=<doc_url>...]\` - Generate comprehensive documentation for this repository (e.g., \`vibe-tools doc --output docs.md\`). Can incorporate document context from multiple URLs (e.g., \`vibe-tools doc --with-doc=https://example.com/existing-docs --with-doc=https://example.com/new-spec\`).
 
@@ -98,6 +101,7 @@ The \`search\` command helps you discover servers in the MCP Marketplace and on 
 **Tool Recommendations:**
 - \`vibe-tools web\` is best for general web information not specific to the repository. Generally call this without additional arguments.
 - \`vibe-tools repo\` is ideal for repository-specific questions, planning, code review and debugging. E.g. \`vibe-tools repo "Review recent changes to command error handling looking for mistakes, omissions and improvements"\`. Generally call this without additional arguments.
+- \`vibe-tools review-diff\` is ideal for reviewing code changes with full context. Use when you need to review what has changed against a base branch. E.g. \`vibe-tools review-diff "Review my changes for potential bugs"\` or \`vibe-tools review-diff "Are there any breaking changes?" --base=develop\`.
 - \`vibe-tools plan\` is ideal for planning tasks. E.g. \`vibe-tools plan "Adding authentication with social login using Google and Github"\`. Generally call this without additional arguments.
 - \`vibe-tools doc\` generates documentation for local or remote repositories.
 - \`vibe-tools youtube\` analyzes YouTube videos to generate summaries, transcripts, implementation plans, or custom analyses

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- **New `review-diff` command**: Review code changes with full repository context and git diff
+  - Combines repository snapshot with git diff for comprehensive code reviews
+  - Supports `--base=<branch>` to specify base branch (default: main)  
+  - Inherits options from `repo` command: `--subdir`, `--with-doc`, `--provider`, `--model`
+  - Ideal for reviewing pull requests and understanding change impact
+
 ## [0.61.5] - 2025-05-23
 
 ### Improved
