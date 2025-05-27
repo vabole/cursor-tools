@@ -61,7 +61,9 @@ type CLIStringOption =
   | 'type'
   | 'format'
   // Test options
-  | 'scenarios';
+  | 'scenarios'
+  // Git diff options
+  | 'base';
 
 type CLINumberOption =
   // Core options
@@ -83,7 +85,8 @@ type CLIBooleanOption =
   | 'network'
   | 'headless'
   | 'text'
-  | 'webSearch';
+  | 'webSearch'
+  | 'withDiff';
 
 // Main CLI options interface
 interface CLIOptions {
@@ -136,6 +139,10 @@ interface CLIOptions {
   // Test options
   parallel?: number;
   scenarios?: string;
+
+  // Git diff options
+  withDiff?: boolean;
+  base?: string;
 }
 
 type CLIOptionKey = CLIStringOption | CLINumberOption | CLIBooleanOption;
@@ -191,6 +198,10 @@ const OPTION_KEYS: Record<string, CLIOptionKey> = {
   // Test options
   parallel: 'parallel',
   scenarios: 'scenarios',
+
+  // Git diff options
+  withdiff: 'withDiff',
+  base: 'base',
 };
 
 // Set of option keys that are boolean flags
@@ -203,6 +214,7 @@ const BOOLEAN_OPTIONS = new Set<CLIBooleanOption>([
   'headless',
   'text',
   'webSearch',
+  'withDiff',
 ]);
 
 // Set of option keys that require numeric values
@@ -339,6 +351,9 @@ async function main() {
     reasoningEffort: undefined,
     subdir: undefined,
     withDoc: undefined,
+    // Git diff options
+    withDiff: undefined,
+    base: undefined,
   };
   const queryArgs: string[] = [];
 

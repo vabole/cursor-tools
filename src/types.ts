@@ -51,6 +51,10 @@ export interface CommandOptions {
 
   // Telemetry tracking
   trackTelemetry?: (data: Record<string, any>) => void; // Function to update telemetry data
+
+  // Git diff options
+  withDiff?: boolean; // Include git diff in repository analysis
+  base?: string; // Base branch for diff comparison (default: main)
 }
 
 export interface Command {
