@@ -25,19 +25,27 @@ const originalRepo = packageJson.repository;
 const originalHomepage = packageJson.homepage;
 const originalBugs = packageJson.bugs;
 
+// Function to extract base version (remove any existing fork suffix)
+function extractBaseVersion(version) {
+  // Remove any existing fork suffix like "-vabole.X"
+  return version.replace(/-[^.]+\.\d+$/, '');
+}
+
 // Function to get/update fork version
 function manageForkVersion(upstreamVersion) {
-  let versionData = { baseVersion: upstreamVersion, forkIteration: 1 };
+  // Always work with the clean base version
+  const baseVersion = extractBaseVersion(upstreamVersion);
+  let versionData = { baseVersion, forkIteration: 1 };
   
   if (existsSync(VERSION_FILE)) {
     const existing = JSON.parse(readFileSync(VERSION_FILE, 'utf8'));
-    if (existing.baseVersion === upstreamVersion) {
+    if (existing.baseVersion === baseVersion) {
       // Same base version, increment fork iteration
       versionData.forkIteration = existing.forkIteration + 1;
     } else {
       // New base version, reset fork iteration
-      console.log(`📌 Base version changed from ${existing.baseVersion} to ${upstreamVersion}`);
-      versionData.baseVersion = upstreamVersion;
+      console.log(`📌 Base version changed from ${existing.baseVersion} to ${baseVersion}`);
+      versionData.baseVersion = baseVersion;
       versionData.forkIteration = 1;
     }
   }
@@ -46,7 +54,7 @@ function manageForkVersion(upstreamVersion) {
   writeFileSync(VERSION_FILE, JSON.stringify(versionData, null, 2));
   
   // Generate fork version
-  return `${upstreamVersion}-${FORK_IDENTIFIER}.${versionData.forkIteration}`;
+  return `${baseVersion}-${FORK_IDENTIFIER}.${versionData.forkIteration}`;
 }
 
 // Function to check if version exists on npm
@@ -100,7 +108,7 @@ async function publish() {
     console.log(`   (based on ${originalName}@${originalVersion})`);
     
     // Write the modified package.json
-    writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
     console.log('✅ Updated package.json');
 
     // Ensure we're logged in with the token
@@ -130,7 +138,7 @@ async function publish() {
     
     // Ensure dist/package.json has the updated name
     const distPackageJsonPath = join(rootDir, 'dist', 'package.json');
-    writeFileSync(distPackageJsonPath, JSON.stringify(packageJson, null, 2));
+    writeFileSync(distPackageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
     console.log('✅ Updated dist/package.json');
 
     // Publish to npm
