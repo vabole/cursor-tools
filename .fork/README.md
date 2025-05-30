@@ -29,19 +29,15 @@ We use pre-release versions to avoid conflicts with upstream:
 
 ### Important Files
 
-- `/scripts/publish-fork.js` - Publishing script (only on publish branches)
-- `/.fork-version.json` - Tracks fork version iterations (git-ignored)
+- `/.github/workflows/publish-fork.yml` - Automated CI publishing workflow
+- `/.fork-version.json` - Tracks fork version iterations (auto-managed by CI)
 - `/.fork/` - This documentation directory (git-ignored on PR branches)
 
 ## Quick Commands
 
 ```bash
-# Publish a new version (recommended - via CI)
+# Publish a new version (automated via CI)
 git push origin publish/main
-
-# Publish locally (alternative)
-git checkout publish/main
-node scripts/publish-fork.js
 
 # Sync with upstream
 git checkout main
@@ -50,6 +46,9 @@ git pull upstream main
 # Start new feature
 git checkout main
 git checkout -b feature/my-feature
+
+# Monitor publishing
+gh run list --repo vabole/cursor-tools --limit 3
 
 # View these docs from any branch
 git show publish/main:.fork/README.md

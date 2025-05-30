@@ -1,140 +1,102 @@
 # Publishing Guide for @vabole/vibe-tools
 
-## 🚀 Recommended: CI Publishing (GitHub Actions)
+## 🚀 CI Publishing (GitHub Actions)
 
-The easiest and most reliable way to publish is through GitHub Actions:
+Publishing is completely automated through GitHub Actions. No manual intervention required!
 
 ### Prerequisites
-1. **GitHub Secret**: Add `VABOLE_NPM_TOKEN` as a repository secret
-2. **Clean Git State**: Commit your changes to `publish/main`
+1. **GitHub Secret**: `VABOLE_NPM_TOKEN` must be configured (see [setup-ci.md](./setup-ci.md))
+2. **Clean Git State**: All changes committed to `publish/main`
 
 ### Publishing Process
+
+**Simply push to the publish branch:**
+
 ```bash
-# 1. Make sure your changes are committed
+# Make sure your changes are committed
 git add .
-git commit -m "feat: add new awesome feature"
+git commit -m "feat: add awesome new feature"
 
-# 2. Push to publish/main branch
+# Push to trigger automatic publish
 git push origin publish/main
-
-# 3. Watch the GitHub Actions workflow run
-# Visit: https://github.com/vabole/cursor-tools/actions
 ```
 
-**That's it!** The workflow will automatically:
-- ✅ Calculate next fork version
-- ✅ Check if version exists
-- ✅ Build with fork configuration
+**That's it!** The CI workflow will automatically:
+- ✅ Calculate next fork version (e.g., `0.61.5-vabole.2`)
+- ✅ Check if version already exists
+- ✅ Build with fork configuration  
 - ✅ Publish to npm
 - ✅ Create git tags
 - ✅ Update version log
 
----
+### Monitor Publishing
 
-## 🛠️ Alternative: Local Publishing
-
-If you prefer to publish locally:
-
-### Prerequisites
-
-1. **NPM Authentication**: Ensure `VABOLE_NPM_KEY` is set in your environment
-   ```bash
-   export VABOLE_NPM_KEY=your-npm-token-here
-   ```
-
-2. **Clean Working Directory**: Commit or stash any changes before publishing
-
-## Publishing Process
-
-### 1. Switch to publish branch
+Watch the workflow progress:
 ```bash
-git checkout publish/main
+# View recent workflow runs
+gh run list --repo vabole/cursor-tools --limit 3
+
+# Watch a specific run
+gh run watch [RUN_ID] --repo vabole/cursor-tools
+
+# View logs if something fails
+gh run view [RUN_ID] --log-failed --repo vabole/cursor-tools
 ```
 
-### 2. Merge latest changes (if any)
+### Version Management
+
+Versions are automatically calculated:
+- **Base version**: Extracted from `package.json` (e.g., `0.61.5`)
+- **Fork version**: `{base}-vabole.{iteration}` (e.g., `0.61.5-vabole.3`)
+- **Iteration**: Auto-incremented for each publish
+
+### Workflow Behavior
+
+**Smart Publishing:**
+- ✅ Skips if version already exists on npm
+- ✅ Handles version conflicts automatically
+- ✅ Only publishes when changes are detected
+
+**Error Handling:**
+- ❌ Build failures stop the publish
+- ❌ npm authentication issues are logged clearly
+- ❌ Git conflicts are reported with helpful messages
+
+## 📦 Installation
+
+Users can install your published fork:
+
 ```bash
-# If you have new features to include
-git merge feature/your-feature
+# Latest version
+npm install -g @vabole/vibe-tools@latest
 
-# If upstream PR got updated
-git merge add-with-diff-flag
+# Specific version
+npm install -g @vabole/vibe-tools@0.61.5-vabole.2
 ```
 
-### 3. Run the publish script
-```bash
-node scripts/publish-fork.js
-```
+## 🔍 Troubleshooting
 
-The script will:
-- ✅ Generate version like `0.61.5-vabole.3`
-- ✅ Check if version already exists on npm
-- ✅ Update package.json temporarily
-- ✅ Build the project
-- ✅ Publish to npm automatically
-- ✅ Create git tag `fork-v0.61.5-vabole.3`
-- ✅ Restore original package.json
+### Workflow not triggering
+- Ensure you're pushing to `publish/main` branch
+- Check if workflow file exists: `.github/workflows/publish-fork.yml`
 
-### 4. Push tags (optional)
-```bash
-git push origin --tags
-```
+### Authentication errors
+- Verify `VABOLE_NPM_TOKEN` secret is configured
+- Check token hasn't expired
+- Ensure token has publish permissions
 
-## Version Management
+### Version conflicts
+- CI automatically handles this by incrementing iteration
+- Check [version-log.md](./version-log.md) for published versions
 
-### How versions work
+### Build failures
+- Check if all dependencies install correctly
+- Verify TypeScript compilation passes
+- Look for missing environment variables
 
-The `.fork-version.json` file tracks your iterations:
-```json
-{
-  "baseVersion": "0.61.5",
-  "forkIteration": 3
-}
-```
+## 📊 Monitoring
 
-- When upstream version changes, iteration resets to 1
-- Each publish increments the iteration
-- Version format: `{upstream}-vabole.{iteration}`
-
-### After upstream releases
-
-When upstream releases a new version (e.g., 0.61.6):
-
-1. Update main branch:
-   ```bash
-   git checkout main
-   git pull upstream main
-   ```
-
-2. Merge to publish branch:
-   ```bash
-   git checkout publish/main
-   git merge main
-   ```
-
-3. Next publish will automatically use `0.61.6-vabole.1`
-
-## Troubleshooting
-
-### "Version already exists" error
-The script tracks iterations, so just run it again - it will increment automatically.
-
-### Build fails
-Ensure all dependencies are installed:
-```bash
-pnpm install
-```
-
-### Git tag already exists
-This is OK - the script will continue. Tags help track what was published when.
-
-## Installing Your Fork
-
-Users can install your fork with:
-```bash
-npm install @vabole/vibe-tools@0.61.5-vabole.3
-```
-
-Or latest:
-```bash
-npm install @vabole/vibe-tools@latest
-```
+- **Workflow Runs**: https://github.com/vabole/cursor-tools/actions
+- **Published Versions**: https://www.npmjs.com/package/@vabole/vibe-tools
+- **Git Tags**: `git tag | grep fork-v`
+- **Version Log**: [version-log.md](./version-log.md)

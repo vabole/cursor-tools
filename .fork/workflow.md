@@ -53,8 +53,8 @@ git commit -m "feat: add awesome command"
 git checkout publish/main
 git merge feature/awesome-new-command
 
-# Publish new version
-node scripts/publish-fork.js
+# Publish new version (automated)
+git push origin publish/main
 ```
 
 ### 3. Contributing Feature Upstream
@@ -78,7 +78,7 @@ git push origin add-with-diff-flag
 # Also update your fork
 git checkout publish/main
 git merge add-with-diff-flag
-node scripts/publish-fork.js
+git push origin publish/main  # Automatically publishes
 ```
 
 ### 5. After PR Merges
@@ -109,8 +109,8 @@ git rebase main
 ### ❌ DON'T
 
 - Don't commit directly to `main`
-- Don't add `.fork/`, `scripts/publish-fork.js` to PR branches
-- Don't publish with upstream's exact version numbers
+- Don't add `.fork/`, `.github/workflows/publish-fork.yml` to PR branches
+- Don't manually publish (CI handles this automatically)
 - Don't force-push to branches with open PRs
 
 ## Syncing with Upstream
@@ -150,12 +150,12 @@ Add these to your git config:
 
 ```bash
 # Fork-specific aliases
-git config alias.fork-publish "checkout publish/main"
 git config alias.fork-sync "!git checkout main && git pull upstream main && git checkout publish/main && git merge main"
 git config alias.fork-new "!f() { git checkout main && git pull upstream main && git checkout -b feature/\$1; }; f"
+git config alias.fork-publish "!git checkout publish/main && git push origin publish/main"
 
 # Usage:
-git fork-publish          # Switch to publish branch
 git fork-sync            # Sync with upstream
 git fork-new my-feature  # Start new feature branch
+git fork-publish         # Publish via CI (push to publish/main)
 ```
