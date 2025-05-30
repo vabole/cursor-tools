@@ -2,7 +2,6 @@
 
 import { execSync } from 'child_process';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { createInterface } from 'readline';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -88,21 +87,6 @@ packageJson.forkMetadata = {
   forkIdentifier: FORK_IDENTIFIER
 };
 
-// Function to prompt for 2FA
-function prompt2FA() {
-  return new Promise((resolve) => {
-    const rl = createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
-    
-    rl.question('Enter your npm 2FA code: ', (answer) => {
-      rl.close();
-      resolve(answer);
-    });
-  });
-}
-
 async function publish() {
   try {
     // Check if this version already exists
@@ -140,12 +124,9 @@ async function publish() {
     writeFileSync(distPackageJsonPath, JSON.stringify(packageJson, null, 2));
     console.log('✅ Updated dist/package.json');
 
-    // Get 2FA code
-    const otpCode = await prompt2FA();
-
-    // Publish with OTP
+    // Publish to npm
     console.log(`📤 Publishing to npm...`);
-    execSync(`npm publish --otp=${otpCode}`, {
+    execSync(`npm publish`, {
       stdio: 'inherit',
       cwd: rootDir
     });

@@ -7,9 +7,7 @@
    export VABOLE_NPM_KEY=your-npm-token-here
    ```
 
-2. **2FA Setup**: Have your authenticator app ready for NPM 2FA
-
-3. **Clean Working Directory**: Commit or stash any changes before publishing
+2. **Clean Working Directory**: Commit or stash any changes before publishing
 
 ## Publishing Process
 
@@ -37,8 +35,7 @@ The script will:
 - ✅ Check if version already exists on npm
 - ✅ Update package.json temporarily
 - ✅ Build the project
-- ✅ Prompt for 2FA code
-- ✅ Publish to npm
+- ✅ Publish to npm automatically
 - ✅ Create git tag `fork-v0.61.5-vabole.3`
 - ✅ Restore original package.json
 
@@ -91,9 +88,6 @@ Ensure all dependencies are installed:
 ```bash
 pnpm install
 ```
-
-### 2FA timeout
-The script will wait for your 2FA code. If it times out, just run again.
 
 ### Git tag already exists
 This is OK - the script will continue. Tags help track what was published when.
