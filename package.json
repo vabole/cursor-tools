@@ -1,5 +1,5 @@
 {
-  "name": "vibe-tools",
+  "name": "@vabole/vibe-tools",
   "description": "CLI tools for AI agents",
   "keywords": [
     "cursor",
@@ -8,7 +8,7 @@
     "ai",
     "assistant"
   ],
-  "version": "0.61.5",
+  "version": "0.61.5-vabole.1",
   "type": "module",
   "main": "./dist/index.mjs",
   "bin": {
@@ -38,11 +38,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eastlondoner/cursor-tools.git"
+    "url": "git+https://github.com/vabole/cursor-tools.git"
   },
-  "homepage": "https://github.com/eastlondoner/cursor-tools#readme",
+  "homepage": "https://github.com/vabole/cursor-tools#readme",
   "bugs": {
-    "url": "https://github.com/eastlondoner/cursor-tools/issues"
+    "url": "https://github.com/vabole/cursor-tools/issues"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.51.0",
@@ -89,5 +89,13 @@
     "onlyBuiltDependencies": [
       "esbuild"
     ]
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "forkMetadata": {
+    "upstreamVersion": "0.61.5",
+    "upstreamPackage": "vibe-tools",
+    "forkIdentifier": "vabole"
   }
 }

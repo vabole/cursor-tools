@@ -27,8 +27,8 @@ const originalBugs = packageJson.bugs;
 
 // Function to extract base version (remove any existing fork suffix)
 function extractBaseVersion(version) {
-  // Remove any existing fork suffix like "-vabole.X"
-  return version.replace(/-[^.]+\.\d+$/, '');
+  // Remove any existing fork suffix like "-vabole.X" or "-anything.number"
+  return version.replace(/-[^.]+\.\d+.*$/, '');
 }
 
 // Function to get/update fork version
