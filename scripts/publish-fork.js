@@ -115,9 +115,18 @@ async function publish() {
     });
     console.log('✅ NPM auth token configured');
 
-    // Build the project
-    console.log('🔨 Building the project...');
-    execSync('pnpm run build', { stdio: 'inherit', cwd: rootDir });
+    // Build the project with fork-specific environment variables
+    console.log('🔨 Building the project with fork configuration...');
+    const buildEnv = {
+      ...process.env,
+      VIBE_TOOLS_PACKAGE_NAME: 'vibe-tools',
+      VIBE_TOOLS_PACKAGE_SCOPE: '@vabole'
+    };
+    execSync('pnpm run build', { 
+      stdio: 'inherit', 
+      cwd: rootDir,
+      env: buildEnv 
+    });
     
     // Ensure dist/package.json has the updated name
     const distPackageJsonPath = join(rootDir, 'dist', 'package.json');

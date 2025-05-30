@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import consola from 'consola';
+import { FULL_PACKAGE_NAME } from '../constants/package';
 
 const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -14,9 +15,10 @@ export interface VersionInfo {
   isOutdated: boolean;
 }
 
+
 /**
- * Gets the currently installed version of vibe-tools by searching upwards
- * for a package.json file with the name "vibe-tools".
+ * Gets the currently installed version by searching upwards
+ * for a package.json file with the expected package name.
  */
 export function getCurrentVersion(): string {
   let currentDir = __dirname;
@@ -30,8 +32,9 @@ export function getCurrentVersion(): string {
         const packageJsonContent = readFileSync(packageJsonPath, 'utf-8');
         const packageJson = JSON.parse(packageJsonContent);
 
-        if (packageJson.name === 'vibe-tools') {
-          consola.debug('Found vibe-tools package.json at:', packageJsonPath);
+        // Check if this is our package (original or fork)
+        if (packageJson.name === FULL_PACKAGE_NAME) {
+          consola.debug(`Found ${packageJson.name} package.json at:`, packageJsonPath);
           return packageJson.version;
         }
       } catch (error) {
@@ -49,17 +52,16 @@ export function getCurrentVersion(): string {
     attempts++;
   }
 
-  consola.error('Could not find vibe-tools package.json by searching upwards from', __dirname);
+  consola.error(`Could not find ${FULL_PACKAGE_NAME} package.json by searching upwards from`, __dirname);
   return '0.0.0'; // Fallback version
 }
 
 /**
- * Gets the latest available version of vibe-tools from the NPM registry.
- * Uses `npm view vibe-tools version`.
+ * Gets the latest available version from the NPM registry.
  */
 export async function getLatestVersion(): Promise<string | null> {
   try {
-    const { stdout } = await execAsync('npm view vibe-tools version');
+    const { stdout } = await execAsync(`npm view ${FULL_PACKAGE_NAME} version`);
     return stdout.trim();
   } catch (error) {
     consola.warn('Failed to fetch latest version from NPM:', error);

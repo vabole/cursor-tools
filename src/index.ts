@@ -9,6 +9,7 @@ import {
   getConfiguredIde,
 } from './vibe-rules';
 import { checkPackageVersion, getCurrentVersion } from './utils/versionUtils';
+import { FULL_PACKAGE_NAME } from './constants/package';
 import type { CommandOptions, Provider } from './types';
 import { reasoningEffortSchema } from './types';
 import { promises as fsPromises } from 'node:fs';
@@ -521,25 +522,25 @@ async function main() {
       switch (selectedPackageManager) {
         case 'yarn':
           pmCommand = 'yarn';
-          pmArgs = ['global', 'add', 'vibe-tools@latest'];
+          pmArgs = ['global', 'add', `${FULL_PACKAGE_NAME}@latest`];
           break;
         case 'pnpm':
           pmCommand = 'pnpm';
-          pmArgs = ['add', '-g', 'vibe-tools@latest'];
+          pmArgs = ['add', '-g', `${FULL_PACKAGE_NAME}@latest`];
           break;
         case 'bun':
           pmCommand = 'bun';
-          pmArgs = ['i', '-g', 'vibe-tools@latest'];
+          pmArgs = ['i', '-g', `${FULL_PACKAGE_NAME}@latest`];
           break;
         case 'npm':
         default:
           pmCommand = 'npm';
-          pmArgs = ['i', '-g', 'vibe-tools@latest'];
+          pmArgs = ['i', '-g', `${FULL_PACKAGE_NAME}@latest`];
           break;
       }
 
       consola.info(
-        `Updating vibe-tools to v${versionInfo.latest} using ${selectedPackageManager}...`
+        `Updating ${FULL_PACKAGE_NAME} to v${versionInfo.latest} using ${selectedPackageManager}...`
       );
       shouldContinueExecution = false; // Don't execute original command yet
 

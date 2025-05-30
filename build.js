@@ -62,7 +62,10 @@ const commonBuildOptions = {
   ],
   keepNames: true,
   mainFields: ['module', 'main'],
-  define: {},
+  define: {
+    'process.env.VIBE_TOOLS_PACKAGE_NAME': JSON.stringify(process.env.VIBE_TOOLS_PACKAGE_NAME || ''),
+    'process.env.VIBE_TOOLS_PACKAGE_SCOPE': JSON.stringify(process.env.VIBE_TOOLS_PACKAGE_SCOPE || '')
+  },
   plugins: [nodeBuiltinsPlugin]
 };
 
