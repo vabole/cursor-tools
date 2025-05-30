@@ -4,9 +4,11 @@ This directory contains documentation and tooling specific to the @vabole/vibe-t
 
 ## Quick Links
 
-- [Publishing Guide](./publish-guide.md) - How to publish new versions
+- [CI Setup Guide](./setup-ci.md) - 🚀 **Recommended**: Set up automated publishing
+- [Publishing Guide](./publish-guide.md) - How to publish new versions (CI + local)
 - [Workflow Overview](./workflow.md) - Git workflow for managing fork and upstream
 - [Version History](./version-log.md) - Track of published versions
+- [Fork-Friendly Code](./fork-friendly-code.md) - Technical architecture details
 
 ## Key Concepts
 
@@ -34,7 +36,10 @@ We use pre-release versions to avoid conflicts with upstream:
 ## Quick Commands
 
 ```bash
-# Publish a new version
+# Publish a new version (recommended - via CI)
+git push origin publish/main
+
+# Publish locally (alternative)
 git checkout publish/main
 node scripts/publish-fork.js
 

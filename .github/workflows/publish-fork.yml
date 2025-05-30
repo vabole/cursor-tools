@@ -1,0 +1,183 @@
+name: Publish Fork
+
+on:
+  push:
+    branches:
+      - publish/main
+  workflow_dispatch: # Allow manual triggering
+
+env:
+  # Fork configuration
+  VIBE_TOOLS_PACKAGE_NAME: vibe-tools
+  VIBE_TOOLS_PACKAGE_SCOPE: '@vabole'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Need full history for git operations
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Read current package info
+        id: package-info
+        run: |
+          CURRENT_NAME=$(node -p "require('./package.json').name")
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "current-name=$CURRENT_NAME" >> $GITHUB_OUTPUT
+          echo "current-version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          
+      - name: Calculate fork version
+        id: fork-version
+        run: |
+          # Extract base version (remove any existing fork suffix)
+          BASE_VERSION=$(echo "${{ steps.package-info.outputs.current-version }}" | sed 's/-[^.]*\.[0-9]*.*$//')
+          echo "Base version: $BASE_VERSION"
+          
+          # Check if .fork-version.json exists and read it
+          FORK_ITERATION=1
+          if [ -f .fork-version.json ]; then
+            EXISTING_BASE=$(node -p "require('./.fork-version.json').baseVersion" 2>/dev/null || echo "")
+            if [ "$EXISTING_BASE" = "$BASE_VERSION" ]; then
+              FORK_ITERATION=$(node -p "require('./.fork-version.json').forkIteration + 1")
+            fi
+          fi
+          
+          FORK_VERSION="${BASE_VERSION}-vabole.${FORK_ITERATION}"
+          echo "Fork version: $FORK_VERSION"
+          
+          # Save version data
+          echo "{\"baseVersion\":\"$BASE_VERSION\",\"forkIteration\":$FORK_ITERATION}" > .fork-version.json
+          
+          echo "base-version=$BASE_VERSION" >> $GITHUB_OUTPUT
+          echo "fork-version=$FORK_VERSION" >> $GITHUB_OUTPUT
+          echo "fork-iteration=$FORK_ITERATION" >> $GITHUB_OUTPUT
+          
+      - name: Check if version exists on npm
+        id: version-check
+        run: |
+          if npm view @vabole/vibe-tools@${{ steps.fork-version.outputs.fork-version }} version &>/dev/null; then
+            echo "Version ${{ steps.fork-version.outputs.fork-version }} already exists on npm!"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Version ${{ steps.fork-version.outputs.fork-version }} is available"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Skip if version exists
+        if: steps.version-check.outputs.exists == 'true'
+        run: |
+          echo "::warning::Version ${{ steps.fork-version.outputs.fork-version }} already exists on npm. Skipping publish."
+          exit 0
+          
+      - name: Update package.json for fork
+        if: steps.version-check.outputs.exists == 'false'
+        run: |
+          # Create updated package.json
+          node -e "
+            const pkg = require('./package.json');
+            pkg.name = '@vabole/vibe-tools';
+            pkg.version = '${{ steps.fork-version.outputs.fork-version }}';
+            pkg.repository = {
+              type: 'git',
+              url: 'git+https://github.com/vabole/cursor-tools.git'
+            };
+            pkg.homepage = 'https://github.com/vabole/cursor-tools#readme';
+            pkg.bugs = {
+              url: 'https://github.com/vabole/cursor-tools/issues'
+            };
+            pkg.publishConfig = {
+              access: 'public'
+            };
+            pkg.forkMetadata = {
+              upstreamVersion: '${{ steps.fork-version.outputs.base-version }}',
+              upstreamPackage: '${{ steps.package-info.outputs.current-name }}',
+              forkIdentifier: 'vabole'
+            };
+            require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+          
+      - name: Build with fork configuration
+        if: steps.version-check.outputs.exists == 'false'
+        run: pnpm run build
+        
+      - name: Update dist/package.json
+        if: steps.version-check.outputs.exists == 'false'
+        run: |
+          cp package.json dist/package.json
+          
+      - name: Publish to npm
+        if: steps.version-check.outputs.exists == 'false'
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.VABOLE_NPM_TOKEN }}
+          
+      - name: Create git tag
+        if: steps.version-check.outputs.exists == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "fork-v${{ steps.fork-version.outputs.fork-version }}"
+          git push origin "fork-v${{ steps.fork-version.outputs.fork-version }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Update version log
+        if: steps.version-check.outputs.exists == 'false'
+        run: |
+          # Update the version log
+          DATE=$(date +%Y-%m-%d)
+          
+          # Read current log and add new entry
+          node -e "
+            const fs = require('fs');
+            const logPath = '.fork/version-log.md';
+            let content = fs.readFileSync(logPath, 'utf8');
+            
+            const newEntry = \`| ${{ steps.fork-version.outputs.fork-version }} | ${{ steps.fork-version.outputs.base-version }} | \${DATE} | - \\\`--with-diff\\\` flag for repo command<br>- Fork publishing system | Published via GitHub Actions |\`;
+            
+            // Replace the header row and add new entry
+            content = content.replace(
+              /(\\| Version \\| Base Version \\| Date \\| Features \\| Notes \\|\\n\\|[^\\n]+\\|\\n)/,
+              \`\$1\${newEntry}\\n\`
+            );
+            
+            fs.writeFileSync(logPath, content);
+          "
+          
+          # Commit and push the version log update
+          git add .fork/version-log.md .fork-version.json
+          git commit -m "Update version log for v${{ steps.fork-version.outputs.fork-version }} [skip ci]"
+          git push origin publish/main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Summary
+        if: steps.version-check.outputs.exists == 'false'
+        run: |
+          echo "## 🎉 Successfully Published!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Package:** @vabole/vibe-tools@${{ steps.fork-version.outputs.fork-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Based on:** ${{ steps.package-info.outputs.current-name }}@${{ steps.fork-version.outputs.base-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "npm install -g @vabole/vibe-tools@${{ steps.fork-version.outputs.fork-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

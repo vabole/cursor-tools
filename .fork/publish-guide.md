@@ -1,6 +1,41 @@
 # Publishing Guide for @vabole/vibe-tools
 
-## Prerequisites
+## 🚀 Recommended: CI Publishing (GitHub Actions)
+
+The easiest and most reliable way to publish is through GitHub Actions:
+
+### Prerequisites
+1. **GitHub Secret**: Add `VABOLE_NPM_TOKEN` as a repository secret
+2. **Clean Git State**: Commit your changes to `publish/main`
+
+### Publishing Process
+```bash
+# 1. Make sure your changes are committed
+git add .
+git commit -m "feat: add new awesome feature"
+
+# 2. Push to publish/main branch
+git push origin publish/main
+
+# 3. Watch the GitHub Actions workflow run
+# Visit: https://github.com/vabole/cursor-tools/actions
+```
+
+**That's it!** The workflow will automatically:
+- ✅ Calculate next fork version
+- ✅ Check if version exists
+- ✅ Build with fork configuration
+- ✅ Publish to npm
+- ✅ Create git tags
+- ✅ Update version log
+
+---
+
+## 🛠️ Alternative: Local Publishing
+
+If you prefer to publish locally:
+
+### Prerequisites
 
 1. **NPM Authentication**: Ensure `VABOLE_NPM_KEY` is set in your environment
    ```bash
