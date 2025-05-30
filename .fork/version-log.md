@@ -6,6 +6,7 @@ Track of all published versions of @vabole/vibe-tools
 
 | Version | Base Version | Date | Features | Notes |
 |---------|--------------|------|----------|-------|
+| 0.61.5-vabole.1 | 0.61.5 | 2025-05-30 | - `--with-diff` flag for repo command<br>- Fork publishing system<br>- Fork-friendly architecture | Published via GitHub Actions CI 🚀 |
 | 0.61.5-vabole.1-vabole.1 | 0.61.5 | 2025-01-30 | - `--with-diff` flag for repo command<br>- Fork publishing system | Initial fork release (version doubled due to script run) |
 
 ## How to Update This Log

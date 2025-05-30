@@ -152,7 +152,7 @@ jobs:
             const logPath = '.fork/version-log.md';
             let content = fs.readFileSync(logPath, 'utf8');
             
-            const newEntry = \`| ${{ steps.fork-version.outputs.fork-version }} | ${{ steps.fork-version.outputs.base-version }} | \${DATE} | - \\\`--with-diff\\\` flag for repo command<br>- Fork publishing system | Published via GitHub Actions |\`;
+            const newEntry = \`| ${{ steps.fork-version.outputs.fork-version }} | ${{ steps.fork-version.outputs.base-version }} | \${process.env.DATE || new Date().toISOString().split('T')[0]} | - \\\`--with-diff\\\` flag for repo command<br>- Fork publishing system | Published via GitHub Actions |\`;
             
             // Replace the header row and add new entry
             content = content.replace(
