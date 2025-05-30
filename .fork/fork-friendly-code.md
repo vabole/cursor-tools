@@ -61,11 +61,12 @@ pnpm run build  # Uses 'vibe-tools'
 ```
 
 ### For Forks
-Use the publish script or set env vars:
+Handled automatically by CI workflow:
 ```bash
-VIBE_TOOLS_PACKAGE_SCOPE=@vabole pnpm run build
-# or
-node scripts/publish-fork.js
+# CI sets these during build:
+# VIBE_TOOLS_PACKAGE_NAME=vibe-tools
+# VIBE_TOOLS_PACKAGE_SCOPE=@vabole
+git push origin publish/main
 ```
 
 ## Areas Covered
